@@ -1,6 +1,7 @@
-import socket
-import time
+#python3 ClientPubblisher.py pub:meteo:messaggio
 
+import socket
+import sys
 
 def Main():
     host = '192.168.14.39'
@@ -8,12 +9,9 @@ def Main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((host, port))
 
-    message ="pub:topic:message"
+    message = sys.argv[1]
     sock.send((message + '\n').encode())
-    while True:
-        message = "MESSAGGIO"
-        sock.send((message + '\n').encode())
-        time.sleep(3)
+    sock.close()
 
 if __name__ == '__main__':
     Main()

@@ -27,29 +27,32 @@ class broker(threading.Thread):
         while True:
             request = self.readLine(sock).decode()
 
-            if not request:
-                break
-
-            if request.lower() == "sub:topic":
+            if request.startswith("sub"):
+                lista=request.split(":")
+                topic=lista[1]
 
                 with subscribers_lock:
-                    if sock not in subscribers:
-                        subscribers.append(sock)
+                    if (sock,topic) not in subscribers:
+                        subscribers.append((sock, topic))
 
                 response = "subscriber" + "\n"
                 sock.sendall(response.encode())
                 print("messaggio inviato al subscriber")
 
-            elif request.startswith("pub:topic:message") or request == "MESSAGGIO":
-                print(f"Inoltro messaggio ai subscriber: {request}")
-                msg_to_send = (request + "\n").encode()
+            elif request.startswith("pub"):
+                request=request.split(":")
+                topic=request[1]
+                message=request[2]
+                msg_to_send = (message + "\n").encode()
 
                 with subscribers_lock:
-                    for sub_sock in subscribers[:]:
-                        try:
-                            sub_sock.sendall(msg_to_send)
-                        except Exception:
-                            subscribers.remove(sub_sock)
+                    for sub_tuple in subscribers[:]:
+                        sub_sock, sub_topic = sub_tuple
+                        if sub_topic==topic:
+                            try:
+                                sub_sock.sendall(msg_to_send)
+                            except Exception:
+                                subscribers.remove(sub_sock)
 
 
 
