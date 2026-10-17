@@ -3,7 +3,7 @@ import time
 
 
 def Main():
-    host = '192.168.14.40'
+    host = '192.168.14.39'
     port = 12346
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.connect((host, port))

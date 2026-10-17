@@ -19,13 +19,9 @@ class broker(threading.Thread):
 
     def readLine(self, sk):
         data = b''
-        while b'\n' not in data:
-            packet = sk.recv(1024)
-            if not packet:
-                return b''
-            data += packet
-        line, _ = data.split(b'\n', 1)
-        return line.strip()
+        while (b'\n' not in data):
+            data += sk.recv(1024)
+        return data.strip()
 
     def ricevi_invia(self,sock):
         while True:
@@ -44,7 +40,7 @@ class broker(threading.Thread):
                 sock.sendall(response.encode())
                 print("messaggio inviato al subscriber")
 
-            elif request.startswith("pub:topic:") or request == "MESSAGGIO":
+            elif request.startswith("pub:topic:message") or request == "MESSAGGIO":
                 print(f"Inoltro messaggio ai subscriber: {request}")
                 msg_to_send = (request + "\n").encode()
 
@@ -69,7 +65,8 @@ def main():
     while True:
         c, addr = s.accept()
         print('client connected ip:<' + str(addr) + '>')
-        t = threading.Thread(target=broker, args=(c, addr))
+        #t = threading.Thread(target=broker, args=(c, addr))
+        t = broker(c, addr)
         t.start()
 
 if __name__ == "__main__":
